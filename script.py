@@ -2,6 +2,8 @@ import wx
 from wx.lib.filebrowsebutton import FileBrowseButton
 from spleeter.separator import Separator
 import os
+import aubio
+from mido import MidiFile, MidiTrack, Message
 
 #PyQt5 was throwing a tantrum so I switched frameworks.
 
@@ -45,6 +47,40 @@ class PianoExtractorApp(wx.Frame):
         panel.SetSizer(vbox)
 
 
+        
+    # Piano waveform must be converted to midi before it ca be converted to sheet music
+    @staticmethod
+    def audio_to_midi(input_file, output_file):
+        win_s = 512                 
+        hop_s = win_s // 2          
+        samplerate = 0
+
+        s = aubio.source(input_file, samplerate, hop_s)
+        samplerate = s.samplerate
+        
+
+        notes_o = aubio.notes("default", win_s, hop_s, samplerate)
+
+        mid = MidiFile()
+        track = MidiTrack()
+        mid.tracks.append(track)
+
+        while True:
+            samples, read = s()
+            new_note = notes_o(samples)
+            if (new_note[0] != 0):
+                # Clamp the values
+                note = min(127, max(0, int(new_note[0])))
+                velocity = min(127, max(0, int(new_note[1])))
+                time = min(127, max(0, int(new_note[2])))
+
+                track.append(Message('note_on', note=note, velocity=velocity, time=time))
+            if read < hop_s: break
+
+        mid.save(output_file)
+
+
+
     def process_with_spleeter(self, event):
         # Get the file from the path listed by the browse files button
         filepath = self.fileBrowseBtn.GetValue()
@@ -63,6 +99,15 @@ class PianoExtractorApp(wx.Frame):
                     os.remove(os.path.join(output_directory, filename))
 
             self.infoLabel.SetLabel(f"Piano track saved in {output_directory}/piano.wav")
+
+            midi_output_directory = "OutputMIDI"
+            if not os.path.exists(midi_output_directory):
+                os.makedirs(midi_output_directory)
+            midi_output_path = os.path.join(midi_output_directory, os.path.splitext(os.path.basename(filepath))[0] + ".mid")
+
+            PianoExtractorApp.audio_to_midi(os.path.join(output_directory, "piano.wav"), midi_output_path)
+            self.infoLabel.SetLabel(f"Piano track saved in {output_directory}/piano.wav\nMIDI saved in {midi_output_path}")
+
         else:
             self.infoLabel.SetLabel("Please select a file first.")
 
