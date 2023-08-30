@@ -2,6 +2,7 @@ import wx
 from wx.lib.filebrowsebutton import FileBrowseButton
 from spleeter.separator import Separator
 import os
+from basic_pitch.inference import predict_and_save
 
 #PyQt5 was throwing a tantrum so I switched frameworks.
 
@@ -63,6 +64,24 @@ class PianoExtractorApp(wx.Frame):
                     os.remove(os.path.join(output_directory, filename))
 
             self.infoLabel.SetLabel(f"Piano track saved in {output_directory}/piano.wav")
+
+            
+
+               # Change this line to use "Output MIDI" folder in the same directory
+            midi_output_directory = "Output MIDI"
+            os.makedirs(midi_output_directory, exist_ok=True)
+            predict_and_save(
+                [os.path.join(output_directory, 'piano.wav')],
+                midi_output_directory,
+                save_midi=True,
+                sonify_midi=False, # set to True if you want .wav version of the MIDI
+                save_model_outputs=False,
+                save_notes=False # set to True if you want note events as CSV
+            )
+
+
+
+
         else:
             self.infoLabel.SetLabel("Please select a file first.")
 
