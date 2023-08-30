@@ -4,6 +4,7 @@ from spleeter.separator import Separator
 import os
 import aubio
 from mido import MidiFile, MidiTrack, Message
+from music21 import converter
 
 #PyQt5 was throwing a tantrum so I switched frameworks.
 
@@ -45,6 +46,27 @@ class PianoExtractorApp(wx.Frame):
         vbox.Add(self.infoLabel, 0, wx.EXPAND | wx.ALL, 10)
 
         panel.SetSizer(vbox)
+
+    def midi_to_musicxml(self, midi_path):
+       
+        score = converter.parse(midi_path)
+        musicxml_directory = "OutputXML"
+        if not os.path.exists(musicxml_directory):
+            os.makedirs(musicxml_directory)
+        musicxml_filename = os.path.splitext(os.path.basename(midi_path))[0] + ".xml"
+        musicxml_path = os.path.join(musicxml_directory, musicxml_filename)
+        score.write('musicxml', musicxml_path)
+        return musicxml_path
+    
+    def musicxml_to_pdf(self, musicxml_path):
+       
+        pdf_directory = "OutputPDF"
+        if not os.path.exists(pdf_directory):
+            os.makedirs(pdf_directory)
+        output_pdf_path = os.path.join(pdf_directory, os.path.splitext(os.path.basename(musicxml_path))[0] + ".pdf")
+        os.system(f'mscore "{musicxml_path}" -o "{output_pdf_path}"')
+
+        return output_pdf_path
 
 
         
@@ -107,6 +129,15 @@ class PianoExtractorApp(wx.Frame):
 
             PianoExtractorApp.audio_to_midi(os.path.join(output_directory, "piano.wav"), midi_output_path)
             self.infoLabel.SetLabel(f"Piano track saved in {output_directory}/piano.wav\nMIDI saved in {midi_output_path}")
+
+            # Convert MIDI to MusicXML
+            musicxml_path = self.midi_to_musicxml(midi_output_path)
+
+            # Convert MusicXML to PDF Sheet Music
+            pdf_path = self.musicxml_to_pdf(musicxml_path)
+
+            self.infoLabel.SetLabel(f"Piano track saved in {output_directory}/piano.wav\nMIDI saved in {midi_output_path}\nSheet music saved in {pdf_path}")
+
 
         else:
             self.infoLabel.SetLabel("Please select a file first.")
