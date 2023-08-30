@@ -3,6 +3,8 @@ from wx.lib.filebrowsebutton import FileBrowseButton
 from spleeter.separator import Separator
 import os
 from basic_pitch.inference import predict_and_save
+from music21 import converter
+
 
 #PyQt5 was throwing a tantrum so I switched frameworks.
 
@@ -46,6 +48,44 @@ class PianoExtractorApp(wx.Frame):
         panel.SetSizer(vbox)
 
 
+
+
+    #IM DEPRECATING MY OWN CODE
+
+
+    #def midi_to_musicxml(self, midi_path):
+     #   score = converter.parse(midi_path)
+      #  musicxml_directory = "OutputXML"
+      #  if not os.path.exists(musicxml_directory):
+       #     os.makedirs(musicxml_directory)
+       # musicxml_filename = os.path.splitext(os.path.basename(midi_path))[0] + ".xml"
+        #musicxml_path = os.path.join(musicxml_directory, musicxml_filename)
+        #score.write('musicxml', musicxml_path)
+        #return musicxml_path
+    
+
+
+
+    def musicxml_to_pdf(self, musicxml_path):
+        pdf_directory = "OutputPDF"
+        if not os.path.exists(pdf_directory):
+            os.makedirs(pdf_directory)
+        output_pdf_path = os.path.join(pdf_directory, os.path.splitext(os.path.basename(musicxml_path))[0] + ".pdf")
+        os.system(f'mscore "{musicxml_path}" -o "{output_pdf_path}"')
+        return output_pdf_path
+    
+
+    def midi_to_pdf(self, midi_path):
+        pdf_directory = "OutputPDF"
+        if not os.path.exists(pdf_directory):
+            os.makedirs(pdf_directory)
+        output_pdf_path = os.path.join(pdf_directory, os.path.splitext(os.path.basename(midi_path))[0] + ".pdf")
+        os.system(f'mscore "{midi_path}" -o "{output_pdf_path}"')
+        return output_pdf_path
+    
+
+
+
     def process_with_spleeter(self, event):
         # Get the file from the path listed by the browse files button
         filepath = self.fileBrowseBtn.GetValue()
@@ -63,12 +103,11 @@ class PianoExtractorApp(wx.Frame):
                 if filename != 'piano.wav':
                     os.remove(os.path.join(output_directory, filename))
 
-            self.infoLabel.SetLabel(f"Piano track saved in {output_directory}/piano.wav")
 
             
 
                # Change this line to use "Output MIDI" folder in the same directory
-            midi_output_directory = "Output MIDI"
+            midi_output_directory = "OutputMIDI"
             os.makedirs(midi_output_directory, exist_ok=True)
             predict_and_save(
                 [os.path.join(output_directory, 'piano.wav')],
@@ -78,6 +117,15 @@ class PianoExtractorApp(wx.Frame):
                 save_model_outputs=False,
                 save_notes=False # set to True if you want note events as CSV
             )
+
+            midi_filename = "piano_basic_pitch.mid"
+            midi_output_path = os.path.join(midi_output_directory, midi_filename)
+
+            
+
+            pdf_path = self.midi_to_pdf(midi_output_path)
+
+            self.infoLabel.SetLabel(f"Piano track saved in {output_directory}/piano.wav\nMIDI saved in {midi_output_path}\nSheet music saved in {pdf_path}")
 
 
 
