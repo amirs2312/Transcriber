@@ -1,68 +1,96 @@
 import wx
 from wx.lib.filebrowsebutton import FileBrowseButton
+from wx.lib.buttons import GenButton
 from spleeter.separator import Separator
 import os
 from basic_pitch.inference import predict_and_save
 from music21 import converter
+import pygame
+from UI import CustomButton
 
 
 #PyQt5 was throwing a tantrum so I switched frameworks.
 
 class PianoExtractorApp(wx.Frame):
     def __init__(self, parent, title):
-        super(PianoExtractorApp, self).__init__(parent, title=title, size=(400, 200))
+        super(PianoExtractorApp, self).__init__(parent, title=title, size=(600, 600))
+
+        dark_background_color = wx.Colour(24, 24, 24)  # A dark gray, almost black
+        greenish_button_color = wx.Colour(30, 215, 96)  # Spotify green
+        white_text_color = wx.Colour(255, 255, 255)
 
 
         # Creating a panel which will contain all the widgets (buttons, labels etc.)
         panel = wx.Panel(self)
+        panel.SetBackgroundColour(dark_background_color)
 
         # Setting a vertical box sizer to manage layout of the widgets vertically
         vbox = wx.BoxSizer(wx.VERTICAL)
+
+        logo_path = "Assets/transcriber-logo.png"  # Path to your logo file
+        logo_image = wx.Image(logo_path, wx.BITMAP_TYPE_PNG).Rescale(600, 120)  # Resize the logo to fit
+        logo_bitmap = wx.StaticBitmap(panel, -1, wx.Bitmap(logo_image))
+        vbox.Add(logo_bitmap, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.TOP | wx.BOTTOM, 10)
+
         
         # File browsing button to select MP3 files
-        self.fileBrowseBtn = FileBrowseButton(panel, labelText="Select MP3 File:", fileMask="*.mp3")
-        vbox.Add(self.fileBrowseBtn, 0, wx.EXPAND | wx.ALL, 10)
+        self.fileBrowseBtn = FileBrowseButton(panel, labelText="Select MP3 File:", fileMask="*.mp3",style=wx.BORDER_NONE)
+       
+        vbox.Add(self.fileBrowseBtn, 0, wx.EXPAND | wx.ALL, 20) # Increased border space to 20
+
 
 
         # Button that activates spleeters processing function 
-        self.processBtn = wx.Button(panel, label="Extract Piano")
+        self.processBtn = CustomButton(panel, label="Extract Piano", size=(200, 50)) # Set button size to 200x50
+        
         # "Binds" Button click event to the processing function
         self.processBtn.Bind(wx.EVT_BUTTON, self.process_with_spleeter)
-        vbox.Add(self.processBtn, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
+        vbox.Add(self.processBtn, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 20)
 
 
-        # Label that will show the save path (eventually)
-        # self.savePathLabel = wx.StaticText(panel, label="Saved path: Not processed yet.")
-        # vbox.Add(self.savePathLabel, 0, wx.EXPAND | wx.ALL, 10)
 
 
         # Button to close the application
-        self.quitBtn = wx.Button(panel, label="Quit")
+        self.quitBtn = CustomButton(panel, label="Quit",size=(200, 50))
+        
         # Bind to the quit function
         self.quitBtn.Bind(wx.EVT_BUTTON, self.quit_application)  
-        vbox.Add(self.quitBtn, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
+        vbox.Add(self.quitBtn, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 20)
 
         self.infoLabel = wx.StaticText(panel, label="No file selected.")
         vbox.Add(self.infoLabel, 0, wx.EXPAND | wx.ALL, 10)
+
+        # Add a Play/Pause button after your existing widgets
+        self.playPauseBtn = CustomButton(panel, label="▶️",size=(200, 50))
+        
+        self.playPauseBtn.Bind(wx.EVT_BUTTON, self.toggle_playback)
+        vbox.Add(self.playPauseBtn, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 20)
+
+        # Add an attribute to keep track of playback state
+        self.isPlaying = False
 
         panel.SetSizer(vbox)
 
 
 
-
-    #IM DEPRECATING MY OWN CODE
-
-
-    #def midi_to_musicxml(self, midi_path):
-     #   score = converter.parse(midi_path)
-      #  musicxml_directory = "OutputXML"
-      #  if not os.path.exists(musicxml_directory):
-       #     os.makedirs(musicxml_directory)
-       # musicxml_filename = os.path.splitext(os.path.basename(midi_path))[0] + ".xml"
-        #musicxml_path = os.path.join(musicxml_directory, musicxml_filename)
-        #score.write('musicxml', musicxml_path)
-        #return musicxml_path
     
+
+    def toggle_playback(self, event):
+        selected_file = self.fileBrowseBtn.GetValue()
+
+        if not self.isPlaying:  # Play the file
+            if selected_file and os.path.exists(selected_file):
+                pygame.mixer.init()
+                pygame.mixer.music.load(selected_file)
+                pygame.mixer.music.play()
+                self.isPlaying = True
+                self.playPauseBtn.SetLabel("⏸")
+            else:
+                self.infoLabel.SetLabel("Please select a valid file first.")
+        else:  # Pause the playback
+            pygame.mixer.music.pause()
+            self.isPlaying = False
+            self.playPauseBtn.SetLabel("▶")
 
 
 
