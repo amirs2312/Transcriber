@@ -11,7 +11,7 @@ Transcriber is a tool that isolates the piano track from a given audio file, con
 - **MIDI Conversion**: The extracted piano track is then converted into a MIDI file.
 - **Sheet Music Generation**: Produce a PDF with the sheet music representation of the MIDI.
 
-![Transcriber UI](assets/huh.jpg)
+![Transcriber UI](Assets/huh.jpg)
 
 ## Requirements
 
