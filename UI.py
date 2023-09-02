@@ -6,6 +6,8 @@ class CustomButton(wx.Button):
         super(CustomButton, self).__init__(*args, **kw)
         
         self.SetBackgroundColour(wx.Colour(0,0,0,0))
+        font = wx.Font(24, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_HEAVY, False, "Ariel")
+        self.SetFont(font)
         
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_LEFT_DOWN, self.OnPress)
@@ -25,6 +27,7 @@ class CustomButton(wx.Button):
         width, height = self.GetSize()
 
         base_color = wx.Colour(201,239,199)
+        my_grey = wx.Colour(69,69,69,255)
 
         if self.pressed:
             dc.SetBrush(wx.Brush(base_color.ChangeLightness(60)))  # Slightly darker when pressed
@@ -36,12 +39,11 @@ class CustomButton(wx.Button):
         dc.SetPen(wx.Pen(base_color, 1))
         dc.DrawRoundedRectangle(0, 0, width, height, 5)  # Rounded Rectangle with 5 as the radius
 
-        dc.SetTextForeground(wx.BLACK) 
+        dc.SetTextForeground(my_grey) 
 
         dc.DrawLabel(self.GetLabel(), self.GetClientRect(), wx.ALIGN_CENTER)
 
-        font = wx.Font(12, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_HEAVY, False, "Ariel")
-        self.SetFont(font)
+        
         
 
     def OnPress(self, event):
