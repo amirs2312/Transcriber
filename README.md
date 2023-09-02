@@ -11,7 +11,8 @@ Transcriber is a tool that isolates the piano track from a given audio file, con
 - **MIDI Conversion**: The extracted piano track is then converted into a MIDI file.
 - **Sheet Music Generation**: Produce a PDF with the sheet music representation of the MIDI.
 
-![Transcriber UI](Assets/huh.jpg)
+<img src="Assets/huh.jpg" alt="Transcriber UI" width="598" height="669"/>
+
 
 ## Requirements
 
@@ -31,7 +32,7 @@ git clone https://github.com/your_username/piano-extractor.git
 ```
 2. Navigate to the project directory:
 ```
-cd piano-extractor
+cd Transcriber
 ```
 3. Install the required packages:
 ```
