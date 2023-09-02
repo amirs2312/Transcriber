@@ -11,6 +11,8 @@ Transcriber is a tool that isolates the piano track from a given audio file, con
 - **MIDI Conversion**: The extracted piano track is then converted into a MIDI file.
 - **Sheet Music Generation**: Produce a PDF with the sheet music representation of the MIDI.
 
+![Transcriber UI](assets/huh.jpg)
+
 ## Requirements
 
 - **Python Version**: 3.9
@@ -33,13 +35,12 @@ cd piano-extractor
 ```
 3. Install the required packages:
 ```
-pip install -r requirements.txt
+pip3.9 install -r requirements.txt
 ```
-<!-- If you don't have a requirements.txt, you might want to create one. Else, list the installation commands for the individual libraries -->
 
 4. Run the application:
 ```
-python script.py
+python3.9 script.py
 ```
 
 ## Usage
@@ -50,6 +51,7 @@ python script.py
 4. **Exit**: Click the "Quit" button to exit the application.
 
 > **Note**: Previous extraction results will be deleted when starting a new extraction.
+> **Note**: Extraction Results will be found in their corresponding folder, isolated piano in OutputPiano, midi in OutputMIDI, etc.
 
 ## Contributing
 
