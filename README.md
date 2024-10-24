@@ -1,4 +1,4 @@
-# Transcriber
+# Transcriber  (This readme is outdated)
 
 Transcriber is a tool that isolates the piano track from a given audio file, converts it into a MIDI representation, and generates sheet music in PDF format.
 
